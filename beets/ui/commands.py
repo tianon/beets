@@ -1666,19 +1666,21 @@ def move_items(lib, dest, query, copy, album, pretend, confirm=False,
     if not objs:
         return
 
+    def _rel(path):
+        return os.path.relpath(path, lib.directory)
     if pretend:
         if album:
-            show_path_changes([(item.path, item.destination(basedir=dest))
+            show_path_changes([(_rel(item.path), _rel(item.destination(basedir=dest)))
                                for obj in objs for item in obj.items()])
         else:
-            show_path_changes([(obj.path, obj.destination(basedir=dest))
+            show_path_changes([(_rel(obj.path), _rel(obj.destination(basedir=dest)))
                                for obj in objs])
     else:
         if confirm:
             objs = ui.input_select_objects(
                 'Really %s' % act, objs,
                 lambda o: show_path_changes(
-                    [(o.path, o.destination(basedir=dest))]))
+                    [(_rel(o.path), _rel(o.destination(basedir=dest)))]))
 
         for obj in objs:
             log.debug('moving: {0}', util.displayable_path(obj.path))
