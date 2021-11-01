@@ -102,6 +102,7 @@ ui:
         text_error: red
         text_highlight: red
         text_highlight_minor: lightgray
+        text_highlight_old: darkgray
         action_default: turquoise
         action: blue
 

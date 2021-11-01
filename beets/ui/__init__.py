@@ -495,9 +495,10 @@ RESET_COLOR = COLOR_ESCAPE + "39;49;00m"
 # These abstract COLOR_NAMES are lazily mapped on to the actual color in COLORS
 # as they are defined in the configuration files, see function: colorize
 COLOR_NAMES = ['text_success', 'text_warning', 'text_error', 'text_highlight',
-               'text_highlight_minor', 'action_default', 'action']
+               'text_highlight_minor', 'text_highlight_old', 'action_default', 'action']
 COLORS = None
 
+colorize_regex = re.compile('^|(?<=' + re.escape(RESET_COLOR) + ')(?!' + re.escape(COLOR_ESCAPE) + ')')
 
 def _colorize(color, text):
     """Returns a string that prints the given text in the given color
@@ -510,7 +511,7 @@ def _colorize(color, text):
         escape = COLOR_ESCAPE + "%i;01m" % (LIGHT_COLORS[color] + 30)
     else:
         raise ValueError('no such color %s', color)
-    return escape + text + RESET_COLOR
+    return colorize_regex.sub(escape, text) + RESET_COLOR
 
 
 def colorize(color_name, text):
@@ -758,7 +759,10 @@ def show_path_changes(path_changes):
         # Print every change over two lines
         for source, dest in zip(sources, destinations):
             color_source, color_dest = colordiff(source, dest)
-            print_('{0} \n  -> {1}'.format(color_source, color_dest))
+            color_source = '<- ' + color_source
+            color_dest   = '  -> ' + color_dest
+            color_source = colorize('text_highlight_old', color_source)
+            print_('{0}\n{1}'.format(color_source, color_dest))
     else:
         # Print every change on a single line, and add a header
         title_pad = max_width - len('Source ') + len(' -> ')
